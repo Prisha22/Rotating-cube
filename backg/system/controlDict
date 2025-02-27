@@ -1,0 +1,109 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+libs            (overset fvMotionSolvers);
+
+application     overPimpleDyMFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         5;
+
+deltaT          0.0001;
+
+writeControl    timeStep;
+
+writeInterval   1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+maxCo           1;
+functions
+{
+       forceCoeffs1
+{
+    // Mandatory entries
+    type            forceCoeffs;
+    libs            ("libforces.so");
+    patches         (cube);
+
+
+    // Optional entries
+
+    // Field names
+    p               p;
+    U               U;
+    rho             rhoInf;
+
+    // Reference pressure [Pa]
+    pRef            0;
+    rhoInf          1.2;
+
+    // Include porosity effects?
+    porosity        no;
+
+    // Store and write volume field representations of forces and moments
+    writeFields     yes;
+
+    // Centre of rotation for moment calculations
+    CofR            (0 0 0);
+
+    // Lift direction
+    liftDir         (0 1 0);
+
+    // Drag direction
+    dragDir         ( 1 0 0);
+
+    // Pitch axis
+    pitchAxis       (0 0 1);
+
+    // Freestream velocity magnitude [m/s]
+    magUInf         30;
+
+    // Reference length [m]
+    lRef           1;
+
+    // Reference area [m2]
+    Aref           1;
+
+    // Spatial data binning
+    // - extents given by the bounds of the input geometry
+    //binData
+    //{
+    //    nBin        20;
+    //    direction   (1 0 0);
+    //    cumulative  yes;
+    //}
+}
+}
+
+
+
+// ************************************************************************* //

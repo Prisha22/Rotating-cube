@@ -1,0 +1,127 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+    yPsi
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+    pFinal
+    {
+        $p;
+    }
+
+    pcorr
+    {
+        $p;
+        solver          PCG;
+        preconditioner  DIC;
+    }
+
+    pcorrFinal
+    {
+        $pcorr;
+        relTol          0;
+    }
+
+    "(U|k|epsilon|omega)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-08;
+
+        relTol          0.0;
+	minIter		3;
+    }
+
+    "(U|k|epsilon|omega)Final"
+    {
+        $U;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+    cellDisplacement
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-06;
+        relTol          0;
+        maxIter         100;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor   true;		//D on
+
+//REMOVED
+    correctPhi          false;  	//D off in overset - Requires fluxRequired in fvSchemes for pcorr
+    ddtCorr                 true;       //D yes
+    //massFluxInterpolation     no;     //D no
+
+
+//Adjust the balance of fluxes on the faces between interpolated
+//and calculated to obey continuity.
+    oversetAdjustPhi    false;		//D off - Only in overset
+
+
+    nOuterCorrectors    	2;
+    nCorrectors         	3;
+    nNonOrthogonalCorrectors 	1;
+
+    //moveMeshOuterCorrectors 	yes;		//D no
+
+    //checkMeshCourantNo 	yes;		//D no
+    //turbOnFinalIterOnly 	yes;		//D yes
+
+    //pRefPoint           (0.0001 0.0001 0.001);
+    //pRefValue           0.0;
+
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               0.3;
+    }
+    equations
+    {
+        "(U|k|omega)"   0.9;
+        "(U|k|omega)Final" 0.9;
+    }
+}
+
+cache
+{
+    grad(U);
+}
+
+
+// ************************************************************************* //
